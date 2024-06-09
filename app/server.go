@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/codecrafters-io/http-server-starter-go/app/pkg/response"
+	"github.com/codecrafters-io/http-server-starter-go/app/pkg/handle"
+	lamehttp "github.com/codecrafters-io/http-server-starter-go/app/pkg/lamehttp"
 	"net"
 	"os"
 )
@@ -22,18 +23,33 @@ func main() {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
 	}
-
-	_, err = conn.Write((&response.HTTP{
-		Status: 200,
-	}).Byte())
+	//_, err = conn.Write((&lame_http.Response{
+	//	Status: 200,
+	//}).Byte())
+	//if err != nil {
+	//	fmt.Println("Error writing to connection: ", err.Error())
+	//	os.Exit(2)
+	//}
+	var bytes []byte
+	_, err = conn.Read(bytes)
 	if err != nil {
-		fmt.Println("Error writing to connection: ", err.Error())
+		fmt.Println("Error reading from connection: ", err.Error())
 		os.Exit(2)
 	}
-
-	err = conn.Close()
+	request, err := lamehttp.ParseHTTPRequest(bytes)
 	if err != nil {
-		fmt.Println("Error closing the connection: ", err.Error())
+		fmt.Println("Error parsing request: ", err.Error())
+		os.Exit(4)
+	}
+
+	if request.URL == "/" {
+		err = handle.RespondWithCode(conn, 200)
+	} else {
+		err = handle.RespondWithCode(conn, 404)
+	}
+
+	if err != nil {
+		fmt.Println("Error during responding: ", err.Error())
 		os.Exit(3)
 	}
 }

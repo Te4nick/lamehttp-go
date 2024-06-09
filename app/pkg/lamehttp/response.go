@@ -1,4 +1,4 @@
-package response
+package lameHTTP
 
 import "strconv"
 
@@ -6,16 +6,17 @@ const HTTPVersion string = "1.1"
 
 var HTTPStatusString = map[int]string{
 	200: "OK",
+	404: "Not Found",
 }
 
-type HTTP struct {
+type Response struct {
 	Status  int
 	Headers map[string]string
 	Body    []byte
 }
 
-func (r *HTTP) Byte() []byte {
-	versionLine := "HTTP/" + HTTPVersion
+func (r *Response) Byte() []byte {
+	versionLine := "Response/" + HTTPVersion
 	var statusLine string
 	if statusString, ok := HTTPStatusString[r.Status]; ok {
 		statusLine = versionLine + " " + strconv.Itoa(r.Status) + " " + statusString
