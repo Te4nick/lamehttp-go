@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/codecrafters-io/http-server-starter-go/app/pkg/response"
 	"net"
 	"os"
 )
@@ -16,9 +17,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	_, err = l.Accept()
+	conn, err := l.Accept()
 	if err != nil {
 		fmt.Println("Error accepting connection: ", err.Error())
 		os.Exit(1)
+	}
+
+	_, err = conn.Write((&response.HTTP{
+		Status: 200,
+	}).Byte())
+	if err != nil {
+		fmt.Println("Error writing to connection: ", err.Error())
+		os.Exit(2)
+	}
+
+	err = conn.Close()
+	if err != nil {
+		fmt.Println("Error closing the connection: ", err.Error())
+		os.Exit(3)
 	}
 }
