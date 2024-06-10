@@ -16,7 +16,7 @@ type Response struct {
 }
 
 func (r *Response) Byte() []byte {
-	versionLine := "Response/" + HTTPVersion
+	versionLine := "HTTP/" + HTTPVersion
 	var statusLine string
 	if statusString, ok := HTTPStatusString[r.Status]; ok {
 		statusLine = versionLine + " " + strconv.Itoa(r.Status) + " " + statusString
