@@ -6,6 +6,8 @@ import (
 	lamehttp "github.com/codecrafters-io/http-server-starter-go/app/pkg/lamehttp"
 	"net"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
@@ -41,10 +43,21 @@ func main() {
 		fmt.Println("Error parsing request: ", err.Error())
 		os.Exit(4)
 	}
-
-	if request.URL == "/" {
+	switch {
+	case request.URL == "/":
 		err = handle.RespondWithCode(conn, 200)
-	} else {
+	case strings.HasPrefix(request.URL, "/echo/"):
+		bodyString := request.URL[len("/echo/"):]
+		err = handle.Respond(
+			conn,
+			200,
+			map[string]string{
+				"Content-Type":   "text/plain",
+				"Content-Length": strconv.Itoa(len(bodyString)),
+			},
+			[]byte(bodyString),
+		)
+	default:
 		err = handle.RespondWithCode(conn, 404)
 	}
 

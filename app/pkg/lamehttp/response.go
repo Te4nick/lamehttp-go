@@ -25,6 +25,8 @@ func (r *Response) Byte() []byte {
 	}
 
 	headersLine := ""
-	bodyLine := ""
-	return []byte(statusLine + "\r\n" + headersLine + "\r\n" + bodyLine)
+	for key, value := range r.Headers {
+		headersLine += key + ": " + value + "\r\n"
+	}
+	return append([]byte(statusLine+"\r\n"+headersLine+"\r\n"), r.Body...)
 }
