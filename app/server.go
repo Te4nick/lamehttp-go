@@ -30,7 +30,7 @@ func main() {
 	//	fmt.Println("Error writing to connection: ", err.Error())
 	//	os.Exit(2)
 	//}
-	var bytes []byte
+	bytes := make([]byte, 1024)
 	_, err = conn.Read(bytes)
 	if err != nil {
 		fmt.Println("Error reading from connection: ", err.Error())
