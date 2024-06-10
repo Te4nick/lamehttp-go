@@ -57,6 +57,17 @@ func main() {
 			},
 			[]byte(bodyString),
 		)
+	case request.URL == "/user-agent":
+		bodyString := request.Headers["User-Agent"]
+		err = handle.Respond(
+			conn,
+			200,
+			map[string]string{
+				"Content-Type":   "text/plain",
+				"Content-Length": strconv.Itoa(len(bodyString)),
+			},
+			[]byte(bodyString),
+		)
 	default:
 		err = handle.RespondWithCode(conn, 404)
 	}
