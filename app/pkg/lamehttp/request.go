@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -46,9 +47,21 @@ func ParseHTTPRequest(data []byte) (*Request, error) {
 		headers[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
 	}
 	req.Headers = headers
-	_, err = buf.Read(req.Body)
+
+	body := make([]byte, 1024)
+	_, err = buf.Read(body)
 	if err != nil {
 		return nil, err
 	}
+
+	if body[0] != '\r' && body[1] != '\n' {
+		contentLength, err := strconv.Atoi(headers["Content-Length"])
+		if err != nil {
+			return nil, err
+		}
+
+		req.Body = body[:contentLength]
+	}
+
 	return req, nil
 }
