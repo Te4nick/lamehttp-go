@@ -48,20 +48,23 @@ func ParseHTTPRequest(data []byte) (*Request, error) {
 	}
 	req.Headers = headers
 
+	contentLenStr, ok := headers["Content-Length"]
+	if !ok {
+		return req, nil // no request body
+	}
+
+	contentLength, err := strconv.Atoi(contentLenStr)
+	if err != nil {
+		return nil, err
+	}
+
 	body := make([]byte, 1024)
 	_, err = buf.Read(body)
 	if err != nil {
 		return nil, err
 	}
 
-	if body[0] != '\r' && body[1] != '\n' {
-		contentLength, err := strconv.Atoi(headers["Content-Length"])
-		if err != nil {
-			return nil, err
-		}
-
-		req.Body = body[:contentLength]
-	}
+	req.Body = body[:contentLength]
 
 	return req, nil
 }

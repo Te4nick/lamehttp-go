@@ -7,12 +7,12 @@ import (
 
 func HTTPRequest(conn net.Conn) (*lameHTTP.Request, error) {
 	bytes := make([]byte, 1024)
-	_, err := conn.Read(bytes)
+	bytesRead, err := conn.Read(bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	request, err := lameHTTP.ParseHTTPRequest(bytes)
+	request, err := lameHTTP.ParseHTTPRequest(bytes[:bytesRead])
 	if err != nil {
 		return nil, err
 	}
