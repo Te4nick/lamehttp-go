@@ -32,3 +32,11 @@ func (r *Response) Byte() []byte {
 	}
 	return append([]byte(statusLine+"\r\n"+headersLine+"\r\n"), r.Body...)
 }
+
+func (r *Response) Encode(encoding string) *Response {
+	if r.Headers == nil {
+		r.Headers = make(map[string]string)
+	}
+	r.Headers["Content-Encoding"] = encoding
+	return r
+}

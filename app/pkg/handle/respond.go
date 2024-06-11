@@ -20,7 +20,7 @@ func Respond(conn net.Conn, code int, headers map[string]string, body []byte) er
 		Status:  code,
 		Headers: headers,
 		Body:    body,
-	}).Byte())
+	}).Encode("gzip").Byte()) // TODO: extract encoding from here
 	if err != nil {
 		return err
 	}
