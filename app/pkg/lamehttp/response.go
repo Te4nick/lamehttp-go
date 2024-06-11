@@ -6,7 +6,9 @@ const HTTPVersion string = "1.1"
 
 var HTTPStatusString = map[int]string{
 	200: "OK",
+	201: "Created",
 	404: "Not Found",
+	405: "Method Not Allowed",
 }
 
 type Response struct {

@@ -5,7 +5,7 @@ import (
 	"github.com/codecrafters-io/http-server-starter-go/app/pkg/handle"
 	"net"
 	"os"
-	"path/filepath"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -31,23 +31,48 @@ func handler(conn net.Conn) error {
 			[]byte(bodyString),
 		)
 	case strings.HasPrefix(request.URL, "/files/"):
-		dirPath := os.Args[2]
-		var data []byte
-		data, err = os.ReadFile(filepath.Join(dirPath, request.URL[len("/files/"):]))
-		if err != nil {
-			err = handle.RespondWithCode(conn, 404)
-			break
+		switch request.Method {
+		case "GET":
+			dirPath := os.Args[2]
+			var data []byte
+			data, err = os.ReadFile(path.Join(dirPath, request.URL[len("/files/"):]))
+			if err != nil {
+				err = handle.RespondWithCode(conn, 404)
+				break
+			}
+
+			err = handle.Respond(
+				conn,
+				200,
+				map[string]string{
+					"Content-Type":   "application/octet-stream",
+					"Content-Length": strconv.Itoa(len(data)),
+				},
+				data,
+			)
+		case "POST":
+			var nullBytes int
+			nullBytes, err = strconv.Atoi(request.Headers["Content-Length"])
+			if err != nil {
+				break
+			}
+
+			dirPath := os.Args[2]
+			err = os.WriteFile(
+				path.Join(dirPath, request.URL[len("/files/"):]),
+				request.Body[:nullBytes],
+				0644,
+			)
+			if err != nil {
+				break
+			}
+
+			err = handle.RespondWithCode(conn, 201)
+
+		default:
+			err = handle.RespondWithCode(conn, 405)
 		}
 
-		err = handle.Respond(
-			conn,
-			200,
-			map[string]string{
-				"Content-Type":   "application/octet-stream",
-				"Content-Length": strconv.Itoa(len(data)),
-			},
-			data,
-		)
 	case request.URL == "/user-agent":
 		bodyString := request.Headers["User-Agent"]
 		err = handle.Respond(
