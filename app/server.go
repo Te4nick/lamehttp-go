@@ -51,16 +51,10 @@ func handler(conn net.Conn) error {
 				data,
 			)
 		case "POST":
-			var nullBytes int
-			nullBytes, err = strconv.Atoi(request.Headers["Content-Length"])
-			if err != nil {
-				break
-			}
-
 			dirPath := os.Args[2]
 			err = os.WriteFile(
 				path.Join(dirPath, request.URL[len("/files/"):]),
-				request.Body[:nullBytes],
+				request.Body,
 				0644,
 			)
 			if err != nil {
