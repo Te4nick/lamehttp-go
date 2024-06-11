@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	"fmt"
 	"github.com/codecrafters-io/http-server-starter-go/app/pkg/handle"
 	"net"
@@ -21,6 +23,7 @@ func handler(conn net.Conn) error {
 		err = handle.RespondWithCode(conn, 200)
 	case strings.HasPrefix(request.URL, "/echo/"):
 		bodyString := request.URL[len("/echo/"):]
+		body := []byte(bodyString)
 		headers := map[string]string{
 			"Content-Type":   "text/plain",
 			"Content-Length": strconv.Itoa(len(bodyString)),
@@ -28,13 +31,26 @@ func handler(conn net.Conn) error {
 
 		if encoding, ok := request.Headers["Accept-Encoding"]; ok && strings.Contains(encoding, "gzip") {
 			headers["Content-Encoding"] = "gzip"
+
+			var buf bytes.Buffer
+			zw := gzip.NewWriter(&buf)
+			_, gzipErr := zw.Write(body)
+			if gzipErr != nil {
+				err = gzipErr
+			}
+			gzipErr = zw.Close()
+			if gzipErr != nil {
+				err = gzipErr
+			}
+			body = buf.Bytes()
+			headers["Content-Length"] = "gzip"
 		}
 
 		err = handle.Respond(
 			conn,
 			200,
 			headers,
-			[]byte(bodyString),
+			body,
 		)
 	case strings.HasPrefix(request.URL, "/files/"):
 		switch request.Method {
