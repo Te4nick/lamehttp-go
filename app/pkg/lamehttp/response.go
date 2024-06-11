@@ -7,6 +7,7 @@ const HTTPVersion string = "1.1"
 var HTTPStatusString = map[int]string{
 	200: "OK",
 	201: "Created",
+	400: "Bad Request",
 	404: "Not Found",
 	405: "Method Not Allowed",
 }
