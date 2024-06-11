@@ -21,13 +21,19 @@ func handler(conn net.Conn) error {
 		err = handle.RespondWithCode(conn, 200)
 	case strings.HasPrefix(request.URL, "/echo/"):
 		bodyString := request.URL[len("/echo/"):]
+		headers := map[string]string{
+			"Content-Type":   "text/plain",
+			"Content-Length": strconv.Itoa(len(bodyString)),
+		}
+
+		if encoding, ok := request.Headers["Accept-Encoding"]; ok && encoding == "gzip" {
+			headers["Accept-Encoding"] = encoding
+		}
+
 		err = handle.Respond(
 			conn,
 			200,
-			map[string]string{
-				"Content-Type":   "text/plain",
-				"Content-Length": strconv.Itoa(len(bodyString)),
-			},
+			headers,
 			[]byte(bodyString),
 		)
 	case strings.HasPrefix(request.URL, "/files/"):
