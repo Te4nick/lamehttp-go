@@ -27,7 +27,7 @@ func handler(conn net.Conn) error {
 		}
 
 		if encoding, ok := request.Headers["Accept-Encoding"]; ok && encoding == "gzip" {
-			headers["Accept-Encoding"] = encoding
+			headers["Content-Encoding"] = encoding
 		}
 
 		err = handle.Respond(
