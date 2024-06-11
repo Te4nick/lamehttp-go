@@ -30,8 +30,6 @@ func handler(conn net.Conn) error {
 		}
 
 		if encoding, ok := request.Headers["Accept-Encoding"]; ok && strings.Contains(encoding, "gzip") {
-			headers["Content-Encoding"] = "gzip"
-
 			var buf bytes.Buffer
 			zw := gzip.NewWriter(&buf)
 			_, gzipErr := zw.Write(body)
@@ -43,7 +41,9 @@ func handler(conn net.Conn) error {
 				err = gzipErr
 			}
 			body = buf.Bytes()
-			headers["Content-Length"] = "gzip"
+
+			headers["Content-Length"] = strconv.Itoa(len(buf.String()))
+			headers["Content-Encoding"] = "gzip"
 		}
 
 		err = handle.Respond(
