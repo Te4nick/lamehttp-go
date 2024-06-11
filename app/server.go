@@ -5,6 +5,7 @@ import (
 	"github.com/codecrafters-io/http-server-starter-go/app/pkg/handle"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -29,6 +30,24 @@ func handler(conn net.Conn) error {
 			},
 			[]byte(bodyString),
 		)
+	case strings.HasPrefix(request.URL, "/files/"):
+		dirPath := os.Args[2]
+		var data []byte
+		data, err = os.ReadFile(filepath.Join(dirPath, request.URL[len("/files/"):]))
+		if err != nil {
+			err = handle.RespondWithCode(conn, 404)
+			break
+		}
+
+		err = handle.Respond(
+			conn,
+			200,
+			map[string]string{
+				"Content-Type":   "application/octet-string",
+				"Content-Length": strconv.Itoa(len(data)),
+			},
+			data,
+		)
 	case request.URL == "/user-agent":
 		bodyString := request.Headers["User-Agent"]
 		err = handle.Respond(
@@ -43,7 +62,7 @@ func handler(conn net.Conn) error {
 	default:
 		err = handle.RespondWithCode(conn, 404)
 	}
-	return nil
+	return err
 }
 
 func main() {
