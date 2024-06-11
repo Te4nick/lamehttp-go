@@ -43,7 +43,7 @@ func handler(conn net.Conn) error {
 			conn,
 			200,
 			map[string]string{
-				"Content-Type":   "application/octet-string",
+				"Content-Type":   "application/octet-stream",
 				"Content-Length": strconv.Itoa(len(data)),
 			},
 			data,
