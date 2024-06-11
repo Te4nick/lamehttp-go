@@ -26,8 +26,8 @@ func handler(conn net.Conn) error {
 			"Content-Length": strconv.Itoa(len(bodyString)),
 		}
 
-		if encoding, ok := request.Headers["Accept-Encoding"]; ok && encoding == "gzip" {
-			headers["Content-Encoding"] = encoding
+		if encoding, ok := request.Headers["Accept-Encoding"]; ok && strings.Contains(encoding, "gzip") {
+			headers["Content-Encoding"] = "gzip"
 		}
 
 		err = handle.Respond(
